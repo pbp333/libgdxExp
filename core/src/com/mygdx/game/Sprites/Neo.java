@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector3;
 public class Neo {
 
     private static final int GRAVITY = -5;
-    private static final int MOVEMENT = 75;
     private static final int POSITION_OFF_GROUND = 10;
 
     private Vector3 position;
@@ -35,7 +34,7 @@ public class Neo {
         }
 
         velocity.scl(dt);
-        position.add(MOVEMENT * dt, velocity.y, 0);
+        position.add(velocity.x, velocity.y, 0);
         velocity.scl(1 / dt);
 
         bounds.setPosition(position.x, position.y);
@@ -64,6 +63,16 @@ public class Neo {
             velocity.y = 300;
         }
 
+    }
+
+    public void moveRight(){
+
+        position.x += 3;
+    }
+
+    public void moveLeft(){
+
+        position.x -= 3;
     }
 
     public Vector3 getPosition() {

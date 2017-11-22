@@ -1,6 +1,7 @@
 package com.mygdx.game.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -9,17 +10,20 @@ import com.mygdx.game.MatrixGame;
 import com.mygdx.game.Sprites.Neo;
 import com.mygdx.game.Sprites.Enemy;
 
+import javax.swing.*;
+
 public class PlayState extends State {
 
     private static final int ENEMY_SPACING = 125;
     private static final int ENEMY_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -20;
+    private static final int CAMERA_OFFSET = 200;
 
     private Neo neo;
     private Texture bg;
     private Texture ground;
 
-    private Vector2 groundPos1, groundPos2, groundPos3;
+    private Array<Vector2> groundPositions;
 
     private Array<Enemy> enemies;
 
@@ -30,9 +34,13 @@ public class PlayState extends State {
         cam.setToOrtho(false, MatrixGame.WIDTH / 2, MatrixGame.HEIGHT / 2);
         bg = new Texture("matrixcity.png");
         ground = new Texture("ground.png");
-        groundPos1 = new Vector2(cam.position.x - cam.viewportWidth / 2, GROUND_Y_OFFSET);
-        groundPos2 = new Vector2((cam.position.x - cam.viewportWidth / 2) + ground.getWidth(), GROUND_Y_OFFSET);
-        groundPos3 = new Vector2((cam.position.x - cam.viewportWidth / 2) + ground.getWidth() * 2, GROUND_Y_OFFSET);
+
+        groundPositions = new Array<Vector2>();
+
+        for (int i = 0; i < MatrixGame.WIDTH; i++) {
+
+            groundPositions.add(new Vector2(-CAMERA_OFFSET + ground.getWidth() * i, GROUND_Y_OFFSET));
+        }
 
         enemies = new Array<Enemy>();
 
@@ -45,18 +53,26 @@ public class PlayState extends State {
     @Override
     public void handleInput() {
 
-        if (Gdx.input.justTouched()) {
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             neo.jump();
         }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            neo.moveRight();
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            neo.moveLeft();
+        }
+
 
     }
 
     @Override
     public void update(float dt) {
         handleInput();
-        upDateGround();
         neo.update(dt);
-        cam.position.x = neo.getPosition().x + 200;
+        cam.position.x = neo.getPosition().x + CAMERA_OFFSET;
 
         for (int i = 0; i < enemies.size; i++) {
 
@@ -65,6 +81,11 @@ public class PlayState extends State {
             if (cam.position.x - (cam.viewportWidth / 2) > enemy.getEnemyPosition().x + enemy.ENEMY_WIDTH) {
 
                 enemy.update(dt);
+            }
+
+            if (enemy.getEnemyPosition().x + 2 * CAMERA_OFFSET - cam.position.x < 0){
+
+                enemy.rePosition(enemy.getEnemyPosition().x + cam.viewportWidth);
             }
 
             if (enemy.collides(neo.getBounds())) {
@@ -91,9 +112,10 @@ public class PlayState extends State {
             sb.draw(enemy.getEnemy(), enemy.getEnemyPosition().x, enemy.getEnemyPosition().y);
         }
 
-        sb.draw(ground, groundPos1.x, groundPos1.y);
-        sb.draw(ground, groundPos2.x, groundPos2.y);
-        sb.draw(ground, groundPos3.x, groundPos3.y);
+        for (Vector2 groundPosition : groundPositions) {
+
+            sb.draw(ground, groundPosition.x, groundPosition.y);
+        }
         sb.end();
 
     }
@@ -106,18 +128,6 @@ public class PlayState extends State {
         for (Enemy enemy : enemies) {
 
             enemy.dispose();
-        }
-    }
-
-    private void upDateGround(){
-
-        if(cam.position.x - cam.viewportWidth / 2 > groundPos1.x + ground.getWidth()){
-
-            groundPos1.add(ground.getWidth() * 2, 0);
-        }
-        if(cam.position.x - cam.viewportWidth / 2 > groundPos2.x + ground.getWidth()){
-
-            groundPos2.add(ground.getWidth() * 2, 0);
         }
     }
 }

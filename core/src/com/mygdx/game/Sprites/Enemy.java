@@ -6,8 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Enemy {
 
-    private static final int ENEMY_GROUND_DISTANCE = 0;
-    private static final int LOWEST_OPENING = 120;
+    private static final int ENEMY_GROUND_DISTANCE = 10;
     public static final int ENEMY_WIDTH = 52;
 
     private Texture enemy;
@@ -39,7 +38,7 @@ public class Enemy {
 
     public void rePosition(float x) {
 
-        position.set(x, 0);
+        position.set(x, ENEMY_GROUND_DISTANCE);
 
         boundsEnemy.setPosition(position.x, position.y);
     }
